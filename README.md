@@ -1,6 +1,6 @@
 This version of ViewPagerIndicator adds new style in TitlePagerIndicator called as **Pointer**.
 
-
+![ViewPagerIndicator Sample Screen-Pointer](https://raw.github.com/kodeshpa/Android-ViewPagerIndicator/master/sample/screen-pointer.png)
 
 Android ViewPagerIndicator
 ==========================
