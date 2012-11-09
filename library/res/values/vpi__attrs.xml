@@ -89,6 +89,10 @@
         </attr>
         <!-- Height of the indicator above the footer line. -->
         <attr name="footerIndicatorHeight" format="dimension" />
+        <!-- Width of the indicator pointer bellow the footer line. -->
+        <attr name="footerIndicatorWidth" format="dimension" />
+        <!-- Left and right padding of the underline indicator. -->
+        
         <!-- Left and right padding of the underline indicator. -->
         <attr name="footerIndicatorUnderlinePadding" format="dimension" />
         <!-- Padding between the bottom of the title and the footer. -->

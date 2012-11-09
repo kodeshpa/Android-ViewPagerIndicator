@@ -35,7 +35,8 @@
     <color name="default_title_indicator_footer_color">#FF33B5E5</color>
     <dimen name="default_title_indicator_footer_line_height">2dp</dimen>
     <integer name="default_title_indicator_footer_indicator_style">2</integer>
-    <dimen name="default_title_indicator_footer_indicator_height">4dp</dimen>
+    <dimen name="default_title_indicator_footer_indicator_height">10dp</dimen>
+    <dimen name="default_title_indicator_footer_indicator_width">10dp</dimen>
     <dimen name="default_title_indicator_footer_indicator_underline_padding">20dp</dimen>
     <dimen name="default_title_indicator_footer_padding">7dp</dimen>
     <integer name="default_title_indicator_line_position">0</integer>

@@ -21,6 +21,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Rect;
@@ -77,7 +78,7 @@ public class TitlePageIndicator extends View implements PageIndicator {
     }
 
     public enum IndicatorStyle {
-        None(0), Triangle(1), Underline(2);
+        None(0), Triangle(1), Underline(2), Pointer(3);
 
         public final int value;
 
@@ -129,7 +130,7 @@ public class TitlePageIndicator extends View implements PageIndicator {
     private IndicatorStyle mFooterIndicatorStyle;
     private LinePosition mLinePosition;
     private final Paint mPaintFooterIndicator = new Paint();
-    private float mFooterIndicatorHeight;
+    private float mFooterIndicatorHeight, mFooterIndicatorWidth;
     private float mFooterIndicatorUnderlinePadding;
     private float mFooterPadding;
     private float mTitlePadding;
@@ -166,6 +167,7 @@ public class TitlePageIndicator extends View implements PageIndicator {
         final float defaultFooterLineHeight = res.getDimension(R.dimen.default_title_indicator_footer_line_height);
         final int defaultFooterIndicatorStyle = res.getInteger(R.integer.default_title_indicator_footer_indicator_style);
         final float defaultFooterIndicatorHeight = res.getDimension(R.dimen.default_title_indicator_footer_indicator_height);
+		final float defaultFooterIndicatorWidth = res.getDimension(R.dimen.default_title_indicator_footer_indicator_width);
         final float defaultFooterIndicatorUnderlinePadding = res.getDimension(R.dimen.default_title_indicator_footer_indicator_underline_padding);
         final float defaultFooterPadding = res.getDimension(R.dimen.default_title_indicator_footer_padding);
         final int defaultLinePosition = res.getInteger(R.integer.default_title_indicator_line_position);
@@ -184,6 +186,7 @@ public class TitlePageIndicator extends View implements PageIndicator {
         mFooterLineHeight = a.getDimension(R.styleable.TitlePageIndicator_footerLineHeight, defaultFooterLineHeight);
         mFooterIndicatorStyle = IndicatorStyle.fromValue(a.getInteger(R.styleable.TitlePageIndicator_footerIndicatorStyle, defaultFooterIndicatorStyle));
         mFooterIndicatorHeight = a.getDimension(R.styleable.TitlePageIndicator_footerIndicatorHeight, defaultFooterIndicatorHeight);
+		mFooterIndicatorWidth = a.getDimension(R.styleable.TitlePageIndicator_footerIndicatorWidth, defaultFooterIndicatorWidth);
         mFooterIndicatorUnderlinePadding = a.getDimension(R.styleable.TitlePageIndicator_footerIndicatorUnderlinePadding, defaultFooterIndicatorUnderlinePadding);
         mFooterPadding = a.getDimension(R.styleable.TitlePageIndicator_footerPadding, defaultFooterPadding);
         mLinePosition = LinePosition.fromValue(a.getInteger(R.styleable.TitlePageIndicator_linePosition, defaultLinePosition));
@@ -210,7 +213,6 @@ public class TitlePageIndicator extends View implements PageIndicator {
         }
 
         a.recycle();
-
         final ViewConfiguration configuration = ViewConfiguration.get(context);
         mTouchSlop = ViewConfigurationCompat.getScaledPagingTouchSlop(configuration);
     }
@@ -260,6 +262,10 @@ public class TitlePageIndicator extends View implements PageIndicator {
 
     public void setFooterIndicatorStyle(IndicatorStyle indicatorStyle) {
         mFooterIndicatorStyle = indicatorStyle;
+        
+        if(mFooterIndicatorStyle == IndicatorStyle.Pointer){
+        	mPaintFooterLine.setColor(Color.TRANSPARENT);
+        }
         invalidate();
     }
 
@@ -385,7 +391,11 @@ public class TitlePageIndicator extends View implements PageIndicator {
         int height = getHeight();
         final int right = left + width;
         final float rightClip = right - mClipPadding;
-
+        
+        // Here we will draw everthing above pointer into a seperate rect
+        if(mFooterIndicatorStyle == TitlePageIndicator.IndicatorStyle.Pointer){
+        	canvas.drawRect(left, getTop(), right, getBottom() - mFooterIndicatorHeight, mPaintFooterIndicator);
+        }
         int page = mCurrentPage;
         float offsetPercent;
         if (mPageOffset <= 0.5) {
@@ -499,16 +509,35 @@ public class TitlePageIndicator extends View implements PageIndicator {
             footerIndicatorLineHeight = -footerIndicatorLineHeight;
         }
 
-        //Draw the footer line
-        mPath.reset();
-        mPath.moveTo(0, height - footerLineHeight / 2f);
-        mPath.lineTo(width, height - footerLineHeight / 2f);
-        mPath.close();
-        canvas.drawPath(mPath, mPaintFooterLine);
 
         float heightMinusLine = height - footerLineHeight;
         switch (mFooterIndicatorStyle) {
+        	case Pointer:
+    			mPath.reset();
+    			mPath.moveTo(halfWidth - mFooterIndicatorWidth, height - footerIndicatorLineHeight);
+    			mPath.lineTo(halfWidth, height);
+    			mPath.lineTo(halfWidth + mFooterIndicatorWidth, height - footerIndicatorLineHeight);
+    			mPath.close();
+    			canvas.drawPath(mPath, mPaintFooterIndicator);
+
+    			mPath.reset();
+    			mPath.moveTo(0, height - mFooterIndicatorHeight);
+    			mPath.lineTo(halfWidth - mFooterIndicatorWidth, height - mFooterIndicatorHeight);
+    			mPath.lineTo(halfWidth, height);
+    			mPath.lineTo(halfWidth + mFooterIndicatorWidth, height - mFooterIndicatorHeight);
+    			mPath.lineTo(width, height - mFooterIndicatorHeight);
+
+    			canvas.drawPath(mPath, mPaintFooterLine);
+        		break;
             case Triangle:
+                //Draw the footer line
+                mPath.reset();
+                mPath.moveTo(0, height - footerLineHeight / 2f);
+                mPath.lineTo(width, height - footerLineHeight / 2f);
+                mPath.close();
+                canvas.drawPath(mPath, mPaintFooterLine);
+
+                
                 mPath.reset();
                 mPath.moveTo(halfWidth, heightMinusLine - footerIndicatorLineHeight);
                 mPath.lineTo(halfWidth + footerIndicatorLineHeight, heightMinusLine);
@@ -518,6 +547,14 @@ public class TitlePageIndicator extends View implements PageIndicator {
                 break;
 
             case Underline:
+                //Draw the footer line
+                mPath.reset();
+                mPath.moveTo(0, height - footerLineHeight / 2f);
+                mPath.lineTo(width, height - footerLineHeight / 2f);
+                mPath.close();
+                canvas.drawPath(mPath, mPaintFooterLine);
+
+            	
                 if (!currentSelected || page >= boundsSize) {
                     break;
                 }
