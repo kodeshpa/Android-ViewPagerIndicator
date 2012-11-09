@@ -1,3 +1,7 @@
+This version of ViewPagerIndicator adds new style in TitlePagerIndicator called as **Pointer**.
+
+
+
 Android ViewPagerIndicator
 ==========================
 
